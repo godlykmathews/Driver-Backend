@@ -1,0 +1,11 @@
+venv
+__pycache__
+*.pyc
+.git
+.gitignore
+pdfs
+uploads
+test.csv
+runscript.txt
+create_super_admin.py
+migrate_route_support.py

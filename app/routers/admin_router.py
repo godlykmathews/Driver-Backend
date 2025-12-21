@@ -10,7 +10,8 @@ from io import BytesIO
 from datetime import datetime, timedelta
 import random
 import string
-import pandas as pd
+import csv
+import io
 import zipfile
 import os
 
@@ -263,11 +264,14 @@ async def upload_csv(
     try:
         # Read file content
         contents = await file.read()
-        df = pd.read_csv(BytesIO(contents))
+        # Decode bytes to string
+        decoded_content = contents.decode('utf-8-sig')
+        csv_file = io.StringIO(decoded_content)
+        reader = csv.DictReader(csv_file)
         
         # Check required columns
         required_columns = {"cust_name", "amount", "n_inv_no"}
-        if not required_columns.issubset(df.columns):
+        if not reader.fieldnames or not required_columns.issubset(reader.fieldnames):
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=f"CSV must contain columns: {required_columns}"
@@ -283,7 +287,7 @@ async def upload_csv(
         uploaded_count = 0
         skipped_count = 0
         
-        for _, row in df.iterrows():
+        for row in reader:
             # Check if invoice already exists
             existing_invoice = db.query(Invoice).filter(
                 Invoice.n_inv_no == row['n_inv_no']
@@ -295,7 +299,7 @@ async def upload_csv(
             
             # Parse invoice date
             invoice_date = None
-            if 'd_inv_date' in row and pd.notna(row['d_inv_date']):
+            if 'd_inv_date' in row and row['d_inv_date'] and row['d_inv_date'].strip():
                 try:
                     # Parse DD/MM/YYYY format
                     invoice_date = datetime.strptime(str(row['d_inv_date']), "%d/%m/%Y")
@@ -838,8 +842,12 @@ async def upload_file(
         # Process as CSV
         try:
             contents = await file.read()
-            df = pd.read_csv(BytesIO(contents))
-            row_count = len(df)
+            decoded_content = contents.decode('utf-8-sig')
+            csv_file = io.StringIO(decoded_content)
+            reader = csv.reader(csv_file)
+            rows = list(reader)
+            # Assuming first row is header, count data rows
+            row_count = max(0, len(rows) - 1) if rows else 0
             
             return schemas.FileUploadResponse(
                 message=f"CSV file processed successfully. Found {row_count} rows.",

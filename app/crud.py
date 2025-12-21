@@ -2,7 +2,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import and_
 from typing import List, Optional
 from datetime import datetime
-import pandas as pd
+import csv
 
 from app import models, schemas, auth
 
@@ -156,10 +156,12 @@ def create_invoices_from_csv(db: Session, csv_data: str) -> List[models.Invoice]
     try:
         # Parse CSV data
         import io
-        df = pd.read_csv(io.StringIO(csv_data))
+        
+        csv_file = io.StringIO(csv_data)
+        reader = csv.DictReader(csv_file)
         
         invoices = []
-        for _, row in df.iterrows():
+        for row in reader:
             # Check if invoice already exists
             existing = get_invoice_by_number(db, row['invoice_number'])
             if not existing:
