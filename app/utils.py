@@ -3,13 +3,14 @@ import io
 import base64
 from typing import List, Dict, Any
 from reportlab.pdfgen import canvas
-from reportlab.lib.pagesizes import letter
+from reportlab.lib.pagesizes import letter, A4
 from reportlab.lib import colors
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, Image
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import inch
 from datetime import datetime, date
 from app import schemas
+from app.config import settings
 from sqlalchemy.orm import Session
 from sqlalchemy import func, and_
 
@@ -247,3 +248,135 @@ def validate_file_upload(file_content: bytes, max_size: int = 10 * 1024 * 1024) 
         raise ValueError(f"File size exceeds maximum allowed size of {max_size} bytes")
     
     return True
+
+
+def generate_acknowledgement_pdf(data: Dict[str, Any]) -> bytes:
+    """Generate PDF acknowledgment matching the HTML template layout."""
+    buffer = io.BytesIO()
+    # A4 size in points: 595.27 x 841.89
+    doc = SimpleDocTemplate(buffer, pagesize=A4, rightMargin=50, leftMargin=50, topMargin=50, bottomMargin=50)
+    styles = getSampleStyleSheet()
+    story = []
+
+    # Header
+    header_style = ParagraphStyle('Header', parent=styles['Heading1'], alignment=1)
+    story.append(Paragraph(f"<b>{data.get('company_name', 'ZED WELL')}</b>", header_style))
+    story.append(Paragraph("ACKNOWLEDGEMENT OF DELIVERY", styles['Heading2']))
+    story.append(Spacer(1, 20))
+
+    # Invoice Meta
+    story.append(Paragraph(f"<b>Invoice #:</b> {data.get('invoice_id')}", styles['Normal']))
+    story.append(Paragraph(f"<b>Date:</b> {data.get('date')}", styles['Normal']))
+    story.append(Spacer(1, 20))
+
+    # Customer Details
+    story.append(Paragraph("<b>Customer Details</b>", styles['Heading3']))
+    story.append(Paragraph(f"Name: {data.get('customer_name')}", styles['Normal']))
+    story.append(Spacer(1, 10))
+
+    # Delivery Details
+    story.append(Paragraph("<b>Delivery Details</b>", styles['Heading3']))
+    story.append(Paragraph(f"Delivered By: {data.get('delivered_by_name')}", styles['Normal']))
+    story.append(Paragraph(f"Branch: {data.get('branch_address')}", styles['Normal']))
+    story.append(Spacer(1, 20))
+
+    # Signature
+    story.append(Paragraph("<b>Signature</b>", styles['Heading3']))
+    
+    signature_data = data.get('signature_data_url_or_path')
+    if signature_data and signature_data.startswith('data:image'):
+        try:
+            header, encoded = signature_data.split(",", 1)
+            img_data = base64.b64decode(encoded)
+            img_io = io.BytesIO(img_data)
+            img = Image(img_io, width=2*inch, height=1*inch)
+            img.hAlign = 'LEFT'
+            story.append(img)
+        except Exception as e:
+            story.append(Paragraph(f"[Signature Error: {str(e)}]", styles['Normal']))
+    
+    if data.get('signature_name_or_empty'):
+        story.append(Paragraph(f"Notes: {data.get('signature_name_or_empty')}", styles['Normal']))
+
+    # Footer
+    story.append(Spacer(1, 30))
+    story.append(Paragraph(f"Support: {data.get('company_support_contact')}", styles['Normal']))
+
+    doc.build(story)
+    return buffer.getvalue()
+
+
+def generate_route_summary_pdf(route_name: str, invoices: List[Any], current_user_name: str, current_user_email: str) -> bytes:
+    """Generate route summary PDF."""
+    buffer = io.BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=A4, rightMargin=30, leftMargin=30, topMargin=30, bottomMargin=30)
+    styles = getSampleStyleSheet()
+    story = []
+
+    # Title
+    story.append(Paragraph(f"Route Summary: {route_name}", styles['Heading1']))
+    story.append(Paragraph(f"Generated on: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}", styles['Normal']))
+    story.append(Spacer(1, 20))
+
+    # Table Header
+    table_data = [['S.No', 'Invoice #', 'Customer', 'Amount', 'Status', 'Signature']]
+    
+    total_amount = 0
+    completed_count = 0
+    
+    import os
+    
+    for i, inv in enumerate(invoices, 1):
+        status_text = "Delivered" if inv.status == "delivered" else "Pending"
+        amount = inv.amount if inv.amount else 0
+        total_amount += amount
+        if inv.status == "delivered":
+            completed_count += 1
+        
+        # Handle signature
+        signature_cell = "N/A"
+        if inv.status == "delivered" and inv.driver_signature:
+            signature_path = os.path.join(settings.upload_folder, inv.driver_signature)
+            if os.path.exists(signature_path):
+                try:
+                    img = Image(signature_path, width=1*inch, height=0.5*inch)
+                    signature_cell = img
+                except Exception:
+                    signature_cell = "Error"
+            else:
+                signature_cell = "Missing"
+        elif inv.status == "delivered":
+            signature_cell = "No Sig"
+            
+        table_data.append([
+            str(i),
+            str(inv.n_inv_no),
+            Paragraph(inv.cust_name[:30] if inv.cust_name else "", styles['Normal']),
+            f"{amount:.2f}",
+            status_text,
+            signature_cell
+        ])
+
+    # Table Style
+    table = Table(table_data, colWidths=[0.5*inch, 1.2*inch, 2*inch, 1*inch, 1*inch, 1.5*inch])
+    table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+    ]))
+    story.append(table)
+    story.append(Spacer(1, 20))
+
+    # Summary
+    story.append(Paragraph(f"<b>Total Amount:</b> {total_amount:.2f}", styles['Normal']))
+    story.append(Paragraph(f"<b>Completed:</b> {completed_count}/{len(invoices)}", styles['Normal']))
+    story.append(Spacer(1, 20))
+    
+    story.append(Paragraph(f"Generated by: {current_user_name} ({current_user_email})", styles['Italic']))
+
+    doc.build(story)
+    return buffer.getvalue()

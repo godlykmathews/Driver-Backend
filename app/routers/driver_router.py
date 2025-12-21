@@ -10,7 +10,7 @@ from datetime import datetime, timedelta, time
 import os
 from app.config import settings
 import io
-from weasyprint import HTML
+# from weasyprint import HTML  # Removed for Vercel compatibility
 from jinja2 import Template
 import base64
 
@@ -423,10 +423,10 @@ async def acknowledge_invoice(
             )
         photo_content = await photo_file.read()
     
-    # Generate PDF using HTML template
+    # Generate PDF using ReportLab (Vercel compatible)
     pdf_filename = f"invoice_{invoice_id}_acknowledged.pdf"
 
-    # Prepare data for HTML template
+    # Prepare data for PDF template
     signature_data_url = f"data:image/png;base64,{base64.b64encode(signature_content).decode('utf-8')}"
 
     # Get branch info for delivery address
@@ -451,16 +451,9 @@ async def acknowledge_invoice(
         "company_support_contact": "support@zedwell.com"  # Customize as needed
     }
 
-    # Load and render HTML template
-    with open("acknowledgement.html", "r") as f:
-        html_content = f.read()
-    template = Template(html_content)
-    rendered_html = template.render(**template_data)
-
-    # Generate PDF from HTML
-    pdf_buffer = io.BytesIO()
-    HTML(string=rendered_html).write_pdf(pdf_buffer)
-    pdf_content = pdf_buffer.getvalue()
+    # Generate PDF using ReportLab
+    from app import utils
+    pdf_content = utils.generate_acknowledgement_pdf(template_data)
 
     # Save PDF to local directory
     pdf_path = os.path.join(settings.pdf_folder, pdf_filename)
@@ -1270,16 +1263,9 @@ async def acknowledge_customer_visit(
             "company_support_contact": "support@zedwell.com"  # Customize as needed
         }
 
-        # Load and render HTML template
-        with open("acknowledgement.html", "r") as f:
-            html_content = f.read()
-        template = Template(html_content)
-        rendered_html = template.render(**template_data)
-
-        # Generate PDF from HTML
-        pdf_buffer = io.BytesIO()
-        HTML(string=rendered_html).write_pdf(pdf_buffer)
-        pdf_content = pdf_buffer.getvalue()
+        # Generate PDF using ReportLab
+        from app import utils
+        pdf_content = utils.generate_acknowledgement_pdf(template_data)
 
         # Save PDF to local directory
         pdf_path = os.path.join(settings.pdf_folder, pdf_filename)
@@ -1523,16 +1509,9 @@ async def acknowledge_customer_group(
             "company_support_contact": "support@zedwell.com"
         }
         
-        # Load and render HTML template
-        with open("acknowledgement.html", "r") as f:
-            html_content = f.read()
-        template = Template(html_content)
-        rendered_html = template.render(**template_data)
-        
-        # Generate PDF from HTML
-        pdf_buffer = io.BytesIO()
-        HTML(string=rendered_html).write_pdf(pdf_buffer)
-        pdf_content = pdf_buffer.getvalue()
+        # Generate PDF using ReportLab
+        from app import utils
+        pdf_content = utils.generate_acknowledgement_pdf(template_data)
         
         # Save PDF to local directory
         pdf_path = os.path.join(settings.pdf_folder, pdf_filename)

@@ -1551,12 +1551,14 @@ async def generate_route_wise_pdf(
     </html>
     """
     
-    # Generate PDF
+    # Generate PDF using ReportLab (Vercel compatible)
     try:
-        from weasyprint import HTML
-        pdf_buffer = BytesIO()
-        HTML(string=html_content).write_pdf(pdf_buffer)
-        pdf_content = pdf_buffer.getvalue()
+        pdf_content = utils.generate_route_summary_pdf(
+            route_name=route_name,
+            invoices=invoices,
+            current_user_name=current_user.name,
+            current_user_email=current_user.email
+        )
         
         # Generate filename
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")

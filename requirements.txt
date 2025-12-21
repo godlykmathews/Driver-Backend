@@ -8,7 +8,6 @@ python-jose[cryptography]  # JWT
 passlib[argon2]>=1.7.4     # Password hashing with Argon2 support
 argon2-cffi>=21.3.0       # Explicit argon2 dependency
 python-multipart           # File uploads (CSV)
-weasyprint                 # HTML-to-PDF generation
 reportlab                  # PDF generation
 jinja2                     # Template rendering
 gunicorn                   # WSGI server for production
