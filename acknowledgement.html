@@ -1,0 +1,337 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Acknowledgement of Delivery</title>
+
+  <!-- Print-friendly A4 settings -->
+  <style>
+    @page {
+      size: A4 portrait;
+      margin: 15mm 20mm 15mm 20mm;
+    }
+
+    /* Reset & base */
+    * {
+      box-sizing: border-box;
+    }
+    
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: "Arial", "Helvetica", sans-serif;
+      font-size: 11pt;
+      line-height: 1.4;
+      color: #333;
+      background: #fff;
+    }
+
+    .page {
+      width: 170mm; /* A4 width minus margins */
+      min-height: 267mm; /* A4 height minus margins */
+      margin: 0 auto;
+      padding: 0;
+      background: #fff;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    /* Header Styles */
+    .header {
+      border-bottom: 2pt solid #333;
+      padding-bottom: 8mm;
+      margin-bottom: 10mm;
+    }
+
+    .header-row {
+      display: table;
+      width: 100%;
+      table-layout: fixed;
+    }
+
+    .header-left {
+      display: table-cell;
+      width: 60%;
+      vertical-align: top;
+    }
+
+    .header-right {
+      display: table-cell;
+      width: 40%;
+      vertical-align: top;
+      text-align: right;
+    }
+
+    .company-info {
+      margin-bottom: 6mm;
+    }
+
+    .company-name {
+      font-size: 18pt;
+      font-weight: bold;
+      color: #000;
+      margin-bottom: 2mm;
+    }
+
+    .document-title {
+      font-size: 14pt;
+      font-weight: bold;
+      color: #333;
+      text-transform: uppercase;
+      letter-spacing: 0.5pt;
+    }
+
+    .invoice-meta {
+      font-size: 10pt;
+      color: #666;
+    }
+
+    .invoice-meta strong {
+      color: #000;
+    }
+
+    /* Content Sections */
+    .content {
+      margin-bottom: 8mm;
+    }
+
+    .section-title {
+      font-size: 12pt;
+      font-weight: bold;
+      color: #000;
+      margin-bottom: 4mm;
+      border-bottom: 1pt solid #ddd;
+      padding-bottom: 1mm;
+    }
+
+    .info-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 6mm;
+    }
+
+    .info-table td {
+      padding: 3mm 2mm;
+      border-bottom: 1pt solid #eee;
+      vertical-align: top;
+    }
+
+    .info-table .label {
+      width: 30%;
+      font-weight: bold;
+      color: #555;
+    }
+
+    .info-table .value {
+      width: 70%;
+      color: #000;
+    }
+
+    /* Acknowledgement Text */
+    .acknowledgement-text {
+      background: #f8f9fa;
+      border: 1pt solid #ddd;
+      border-radius: 2mm;
+      padding: 6mm;
+      margin: 6mm 0;
+      font-style: italic;
+      text-align: justify;
+      line-height: 1.5;
+    }
+
+    /* Signature Section */
+    .signature-section {
+      margin-top: 12mm;
+      page-break-inside: avoid;
+    }
+
+    .signature-container {
+      display: flex;
+      justify-content: flex-end;
+      width: 100%;
+      margin-top: 8mm;
+    }
+
+    .signature-left {
+      width: 60%;
+      max-width: 100mm;
+    }
+
+    .signature-box {
+      border: 1.5pt solid #333;
+      border-radius: 2mm;
+      height: 25mm;
+      background: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 3mm;
+      position: relative;
+    }
+
+    .signature-image {
+      max-width: 95%;
+      max-height: 95%;
+      object-fit: contain;
+    }
+
+    .signature-label {
+      font-size: 9pt;
+      text-align: center;
+      color: #666;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 0.5pt;
+    }
+
+    .signature-name {
+      font-size: 10pt;
+      font-weight: bold;
+      color: #000;
+      text-align: center;
+      margin-top: 2mm;
+      min-height: 6mm;
+      border-bottom: 1pt solid #333;
+      padding-bottom: 1mm;
+    }
+
+    .signature-line {
+      border-bottom: 1pt solid #333;
+      height: 25mm;
+      margin-bottom: 3mm;
+      position: relative;
+    }
+
+    .signature-line::before {
+      content: "Signature";
+      position: absolute;
+      bottom: -15pt;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 9pt;
+      color: #666;
+      background: #fff;
+      padding: 0 3mm;
+    }
+
+    /* Footer */
+    .footer {
+      border-top: 1pt solid #333;
+      padding-top: 4mm;
+      font-size: 9pt;
+      color: #666;
+      text-align: center;
+      page-break-inside: avoid;
+      margin-top: 0;
+    }
+
+    .footer-row {
+      margin-bottom: 2mm;
+    }
+
+    /* Print-specific adjustments */
+    @media print {
+      .page {
+        margin: 0;
+        box-shadow: none;
+      }
+      
+      body {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+    }
+
+    /* Screen preview */
+    @media screen {
+      body {
+        background: #f0f0f0;
+        padding: 10mm;
+      }
+      
+      .page {
+        box-shadow: 0 2mm 10mm rgba(0,0,0,0.1);
+        background: #fff;
+        padding: 15mm 20mm;
+      }
+    }
+
+  </style>
+</head>
+<body>
+  <div class="page">
+    <!-- Header Section -->
+    <div class="header">
+      <div class="header-row">
+        <div class="header-left">
+          <div class="company-info">
+            <div class="company-name">{{company_name}}</div>
+            <div class="document-title">Delivery Acknowledgement</div>
+          </div>
+        </div>
+        <div class="header-right">
+          <div class="invoice-meta">
+            <div><strong>Invoice ID:</strong> {{invoice_id}}</div>
+            <div><strong>Date:</strong> {{date}}</div>
+            <div><strong>Status:</strong> ACKNOWLEDGED</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Customer Information -->
+    <div class="content">
+      <div class="section-title">Customer Information</div>
+      <table class="info-table">
+        <tr>
+          <td class="label">Customer Name:</td>
+          <td class="value">{{customer_name}}</td>
+        </tr>
+        <tr>
+          <td class="label">Branch Address:</td>
+          <td class="value">{{branch_address}}</td>
+        </tr>
+        <tr>
+          <td class="label">Delivered By:</td>
+          <td class="value">{{delivered_by_name}}</td>
+        </tr>
+      </table>
+    </div>
+
+    <!-- Acknowledgement Statement -->
+    <div class="acknowledgement-text">
+      I hereby acknowledge receipt of the items described in the referenced invoice above. 
+      I confirm that the items were delivered in satisfactory condition and that I am 
+      authorized to accept delivery on behalf of the customer mentioned above.
+    </div>
+
+    <!-- Signature Section -->
+    <div class="signature-section">
+      <div class="section-title">Acknowledgement Signature</div>
+      
+      <div class="signature-container">
+        <div class="signature-left">
+          <div class="signature-box">
+            <img class="signature-image" src="{{signature_data_url_or_path}}" alt="Customer Signature" 
+                 onerror="this.style.display='none'">
+          </div>
+          <div class="signature-label">Customer/Authorized Person</div>
+          <div class="signature-name">{{signature_name_or_empty}}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+      <div class="footer-row">
+        <strong>{{company_name}}</strong> • Invoice: {{invoice_id}} • Generated: {{date}}
+      </div>
+      <div class="footer-row">
+        For questions about this acknowledgement, contact: {{company_support_contact}}
+      </div>
+    </div>
+  </div>
+</body>
+</html>
