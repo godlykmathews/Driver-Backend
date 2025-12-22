@@ -92,8 +92,19 @@ app.add_middleware(
 )
 
 # Mount static files for PDFs and uploads
-app.mount("/pdfs", StaticFiles(directory=settings.pdf_folder), name="pdfs")
-app.mount("/uploads", StaticFiles(directory=settings.upload_folder), name="uploads")
+try:
+    if not os.path.exists(settings.pdf_folder):
+        os.makedirs(settings.pdf_folder)
+    app.mount("/pdfs", StaticFiles(directory=settings.pdf_folder), name="pdfs")
+except Exception as e:
+    logger.warning(f"Could not mount /pdfs: {e}")
+
+try:
+    if not os.path.exists(settings.upload_folder):
+        os.makedirs(settings.upload_folder)
+    app.mount("/uploads", StaticFiles(directory=settings.upload_folder), name="uploads")
+except Exception as e:
+    logger.warning(f"Could not mount /uploads: {e}")
 
 # Include routers
 app.include_router(auth_router.router, prefix="/api/v1", tags=["authentication"])
