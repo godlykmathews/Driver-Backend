@@ -28,6 +28,13 @@ async def get_routes(
     This endpoint is intended for the driver's dashboard dropdown. It returns a
     simple list (no pagination) of routes with `route_display`.
     """
+    # Debug logging
+    print(f"[DEBUG] /driver-routes called by driver_id: {current_driver.user_id}, name: {current_driver.name}")
+    total_invoices = db.query(Invoice).count()
+    assigned_invoices = db.query(Invoice).filter(Invoice.assigned_driver_id == current_driver.user_id).count()
+    invoices_with_driver = db.query(Invoice).filter(Invoice.assigned_driver_id.isnot(None)).count()
+    print(f"[DEBUG] Total invoices: {total_invoices}, Assigned to this driver: {assigned_invoices}, With any driver: {invoices_with_driver}")
+    
     # Query distinct routes for this driver
     query = db.query(
         Invoice.route_number,

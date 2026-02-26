@@ -320,6 +320,12 @@ def get_grouped_invoices_for_driver(
     """Get deduplicated customer groups for driver's invoices"""
     from sqlalchemy import or_, func
     
+    # Debug logging
+    print(f"[DEBUG] get_grouped_invoices_for_driver called for driver_id: {driver_id}")
+    total_invoices = db.query(models.Invoice).count()
+    assigned_invoices = db.query(models.Invoice).filter(models.Invoice.assigned_driver_id == driver_id).count()
+    print(f"[DEBUG] Total invoices: {total_invoices}, Assigned to driver {driver_id}: {assigned_invoices}")
+    
     query = db.query(models.Invoice).filter(models.Invoice.assigned_driver_id == driver_id)
     
     # Apply filters
