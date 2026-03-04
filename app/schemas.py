@@ -566,3 +566,27 @@ class AcknowledgeGroupResponse(BaseModel):
     acknowledged_invoices: List[str]
     signature_saved: str
     pdfs_generated: List[str]
+
+
+# Location tracking schemas
+class LocationUpdate(BaseModel):
+    latitude: float
+    longitude: float
+    accuracy: Optional[float] = None
+
+class LocationUpdateResponse(BaseModel):
+    message: str
+    updated_at: str
+
+class DriverLiveLocation(BaseModel):
+    driver_id: str
+    driver_name: str
+    latitude: float
+    longitude: float
+    accuracy: Optional[float] = None
+    updated_at: str
+    minutes_ago: int
+
+class LiveLocationsResponse(BaseModel):
+    drivers: List[DriverLiveLocation]
+    total: int

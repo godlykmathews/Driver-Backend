@@ -72,3 +72,14 @@ class Invoice(Base):
     
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow)
+
+
+class DriverLocation(Base):
+    __tablename__ = "driver_locations"
+    id = Column(Integer, primary_key=True, index=True)
+    driver_id = Column(Integer, ForeignKey("users.user_id"), unique=True, index=True)
+    latitude = Column(DECIMAL(10, 8), nullable=False)
+    longitude = Column(DECIMAL(11, 8), nullable=False)
+    accuracy = Column(DECIMAL(8, 2), nullable=True)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+

@@ -1550,3 +1550,32 @@ async def acknowledge_customer_group(
     )
 
 
+
+
+@router.post("/location", response_model=schemas.LocationUpdateResponse)
+async def update_driver_location(
+    location: schemas.LocationUpdate,
+    current_driver: User = Depends(auth.get_current_driver_user),
+    db: Session = Depends(get_db)
+):
+    """Driver sends current GPS coordinates. Upserts one row per driver (no history bloat)."""
+    from app.models import DriverLocation
+    now = datetime.utcnow()
+    existing = db.query(DriverLocation).filter(
+        DriverLocation.driver_id == current_driver.user_id
+    ).first()
+    if existing:
+        existing.latitude = location.latitude
+        existing.longitude = location.longitude
+        existing.accuracy = location.accuracy
+        existing.updated_at = now
+    else:
+        db.add(DriverLocation(
+            driver_id=current_driver.user_id,
+            latitude=location.latitude,
+            longitude=location.longitude,
+            accuracy=location.accuracy,
+            updated_at=now,
+        ))
+    db.commit()
+    return schemas.LocationUpdateResponse(message="ok", updated_at=now.isoformat())
