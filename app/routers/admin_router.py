@@ -660,6 +660,33 @@ async def update_admin(
     )
 
 
+@router.get("/drivers/live", response_model=schemas.LiveLocationsResponse)
+async def get_live_driver_locations(
+    current_admin: User = Depends(auth.get_current_admin_user),
+    db: Session = Depends(get_db)
+):
+    """Admin: get latest GPS location for every active driver."""
+    from app.models import DriverLocation
+    locations = db.query(DriverLocation).all()
+    now = datetime.utcnow()
+    result = []
+    for loc in locations:
+        driver = db.query(User).filter(User.user_id == loc.driver_id).first()
+        if not driver:
+            continue
+        minutes_ago = int((now - loc.updated_at).total_seconds() / 60)
+        result.append(schemas.DriverLiveLocation(
+            driver_id=str(loc.driver_id),
+            driver_name=driver.name,
+            latitude=float(loc.latitude),
+            longitude=float(loc.longitude),
+            accuracy=float(loc.accuracy) if loc.accuracy else None,
+            updated_at=loc.updated_at.isoformat(),
+            minutes_ago=minutes_ago,
+        ))
+    return schemas.LiveLocationsResponse(drivers=result, total=len(result))
+
+
 @router.put("/drivers/{driver_id}", response_model=schemas.DriverInfo)
 async def update_driver(
     driver_id: int,
@@ -1575,29 +1602,3 @@ async def generate_route_wise_pdf(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to generate PDF: {str(e)}"
         )
-
-@router.get("/drivers/live", response_model=schemas.LiveLocationsResponse)
-async def get_live_driver_locations(
-    current_admin: User = Depends(auth.get_current_admin_user),
-    db: Session = Depends(get_db)
-):
-    """Admin: get latest GPS location for every active driver."""
-    from app.models import DriverLocation
-    locations = db.query(DriverLocation).all()
-    now = datetime.utcnow()
-    result = []
-    for loc in locations:
-        driver = db.query(User).filter(User.user_id == loc.driver_id).first()
-        if not driver:
-            continue
-        minutes_ago = int((now - loc.updated_at).total_seconds() / 60)
-        result.append(schemas.DriverLiveLocation(
-            driver_id=str(loc.driver_id),
-            driver_name=driver.name,
-            latitude=float(loc.latitude),
-            longitude=float(loc.longitude),
-            accuracy=float(loc.accuracy) if loc.accuracy else None,
-            updated_at=loc.updated_at.isoformat(),
-            minutes_ago=minutes_ago,
-        ))
-    return schemas.LiveLocationsResponse(drivers=result, total=len(result))
