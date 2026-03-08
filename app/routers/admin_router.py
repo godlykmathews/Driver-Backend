@@ -661,6 +661,7 @@ async def update_admin(
 
 
 @router.get("/drivers/live", response_model=schemas.LiveLocationsResponse)
+@router.get("/admin/drivers/live", response_model=schemas.LiveLocationsResponse)
 async def get_live_driver_locations(
     current_admin: User = Depends(auth.get_current_admin_user),
     db: Session = Depends(get_db)
@@ -683,6 +684,17 @@ async def get_live_driver_locations(
             accuracy=float(loc.accuracy) if loc.accuracy else None,
             updated_at=loc.updated_at.isoformat(),
             minutes_ago=minutes_ago,
+        ))
+    # Prototype fallback: if no live locations exist, return a dummy driver
+    if not result:
+        result.append(schemas.DriverLiveLocation(
+            driver_id="0",
+            driver_name="Sam",
+            latitude=9.413378423245112,
+            longitude=76.64143235326938,
+            accuracy=None,
+            updated_at=now.isoformat(),
+            minutes_ago=0,
         ))
     return schemas.LiveLocationsResponse(drivers=result, total=len(result))
 
