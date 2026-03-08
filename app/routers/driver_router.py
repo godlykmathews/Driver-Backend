@@ -10,7 +10,6 @@ from datetime import datetime, timedelta, time
 import os
 from app.config import settings
 import io
-# from weasyprint import HTML  # Removed for Vercel compatibility
 from jinja2 import Template
 import base64
 
@@ -454,7 +453,7 @@ async def acknowledge_invoice(
         "delivered_by_name": current_driver.name,
         "signature_data_url_or_path": signature_data_url,
         "signature_name_or_empty": notes or "",
-        "company_name": "ZED WELL",
+        "company_name": "Dlive",
         "company_support_contact": "support@zedwell.com"  # Customize as needed
     }
 
@@ -1266,7 +1265,7 @@ async def acknowledge_customer_visit(
             "delivered_by_name": current_driver.name,
             "signature_data_url_or_path": signature_data_url,
             "signature_name_or_empty": notes or "",
-            "company_name": "ZED WELL",
+            "company_name": "Dlive",
             "company_support_contact": "support@zedwell.com"  # Customize as needed
         }
 
@@ -1512,7 +1511,7 @@ async def acknowledge_customer_group(
             "delivered_by_name": current_driver.name,
             "signature_data_url_or_path": signature_data_url,
             "signature_name_or_empty": notes or "",
-            "company_name": "ZED WELL",
+            "company_name": "Dlive",
             "company_support_contact": "support@zedwell.com"
         }
         

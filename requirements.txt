@@ -14,3 +14,4 @@ gunicorn                   # WSGI server for production
 email-validator            # Email validation for pydantic
 boto3>=1.28.0             # AWS S3 client for Supabase storage
 a2wsgi>=1.8.0             # ASGI to WSGI adapter for PythonAnywhere
+weasyprint                 # HTML to PDF conversion

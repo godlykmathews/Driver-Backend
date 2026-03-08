@@ -251,59 +251,94 @@ def validate_file_upload(file_content: bytes, max_size: int = 10 * 1024 * 1024) 
 
 
 def generate_acknowledgement_pdf(data: Dict[str, Any]) -> bytes:
-    """Generate PDF acknowledgment matching the HTML template layout."""
-    buffer = io.BytesIO()
-    # A4 size in points: 595.27 x 841.89
-    doc = SimpleDocTemplate(buffer, pagesize=A4, rightMargin=50, leftMargin=50, topMargin=50, bottomMargin=50)
-    styles = getSampleStyleSheet()
-    story = []
+    """Generate PDF acknowledgment from HTML template using WeasyPrint."""
+    try:
+        from weasyprint import HTML
+        from jinja2 import Template
+        import os
+        
+        # Load HTML template
+        template_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'acknowledgement.html')
+        with open(template_path, 'r', encoding='utf-8') as f:
+            template_content = f.read()
+        
+        template = Template(template_content)
+        
+        # Prepare template data with defaults
+        template_vars = {
+            'company_name': data.get('company_name', 'Dlive'),
+            'company_address': data.get('company_address', ''),
+            'company_phone': data.get('company_phone', ''),
+            'company_email': data.get('company_email', ''),
+            'invoice_number': data.get('invoice_id', ''),
+            'invoice_date': data.get('date', ''),
+            'route_number': data.get('route_number', ''),
+            'driver_name': data.get('delivered_by_name', ''),
+            'customer_name': data.get('customer_name', ''),
+            'customer_address': data.get('customer_address', ''),
+            'customer_phone': data.get('customer_phone', ''),
+            'invoice_rows': '',
+            'subtotal': data.get('subtotal', '0.00'),
+            'tax': data.get('tax', '0.00'),
+            'total': data.get('total', '0.00'),
+            'customer_signature': data.get('signature_data_url_or_path', ''),
+            'company_support_contact': data.get('company_support_contact', 'support@dlive.com')
+        }
+        
+        # Render HTML
+        html_content = template.render(**template_vars)
+        
+        # Generate PDF
+        pdf_bytes = HTML(string=html_content).write_pdf()
+        return pdf_bytes
+        
+    except ImportError:
+        # Fallback to ReportLab if WeasyPrint is not available
+        buffer = io.BytesIO()
+        doc = SimpleDocTemplate(buffer, pagesize=A4, rightMargin=50, leftMargin=50, topMargin=50, bottomMargin=50)
+        styles = getSampleStyleSheet()
+        story = []
 
-    # Header
-    header_style = ParagraphStyle('Header', parent=styles['Heading1'], alignment=1)
-    story.append(Paragraph(f"<b>{data.get('company_name', 'ZED WELL')}</b>", header_style))
-    story.append(Paragraph("ACKNOWLEDGEMENT OF DELIVERY", styles['Heading2']))
-    story.append(Spacer(1, 20))
+        header_style = ParagraphStyle('Header', parent=styles['Heading1'], alignment=1)
+        story.append(Paragraph(f"<b>{data.get('company_name', 'Dlive')}</b>", header_style))
+        story.append(Paragraph("ACKNOWLEDGEMENT OF DELIVERY", styles['Heading2']))
+        story.append(Spacer(1, 20))
 
-    # Invoice Meta
-    story.append(Paragraph(f"<b>Invoice #:</b> {data.get('invoice_id')}", styles['Normal']))
-    story.append(Paragraph(f"<b>Date:</b> {data.get('date')}", styles['Normal']))
-    story.append(Spacer(1, 20))
+        story.append(Paragraph(f"<b>Invoice #:</b> {data.get('invoice_id')}", styles['Normal']))
+        story.append(Paragraph(f"<b>Date:</b> {data.get('date')}", styles['Normal']))
+        story.append(Spacer(1, 20))
 
-    # Customer Details
-    story.append(Paragraph("<b>Customer Details</b>", styles['Heading3']))
-    story.append(Paragraph(f"Name: {data.get('customer_name')}", styles['Normal']))
-    story.append(Spacer(1, 10))
+        story.append(Paragraph("<b>Customer Details</b>", styles['Heading3']))
+        story.append(Paragraph(f"Name: {data.get('customer_name')}", styles['Normal']))
+        story.append(Spacer(1, 10))
 
-    # Delivery Details
-    story.append(Paragraph("<b>Delivery Details</b>", styles['Heading3']))
-    story.append(Paragraph(f"Delivered By: {data.get('delivered_by_name')}", styles['Normal']))
-    story.append(Paragraph(f"Branch: {data.get('branch_address')}", styles['Normal']))
-    story.append(Spacer(1, 20))
+        story.append(Paragraph("<b>Delivery Details</b>", styles['Heading3']))
+        story.append(Paragraph(f"Delivered By: {data.get('delivered_by_name')}", styles['Normal']))
+        story.append(Paragraph(f"Branch: {data.get('branch_address')}", styles['Normal']))
+        story.append(Spacer(1, 20))
 
-    # Signature
-    story.append(Paragraph("<b>Signature</b>", styles['Heading3']))
-    
-    signature_data = data.get('signature_data_url_or_path')
-    if signature_data and signature_data.startswith('data:image'):
-        try:
-            header, encoded = signature_data.split(",", 1)
-            img_data = base64.b64decode(encoded)
-            img_io = io.BytesIO(img_data)
-            img = Image(img_io, width=2*inch, height=1*inch)
-            img.hAlign = 'LEFT'
-            story.append(img)
-        except Exception as e:
-            story.append(Paragraph(f"[Signature Error: {str(e)}]", styles['Normal']))
-    
-    if data.get('signature_name_or_empty'):
-        story.append(Paragraph(f"Notes: {data.get('signature_name_or_empty')}", styles['Normal']))
+        story.append(Paragraph("<b>Signature</b>", styles['Heading3']))
+        
+        signature_data = data.get('signature_data_url_or_path')
+        if signature_data and signature_data.startswith('data:image'):
+            try:
+                header, encoded = signature_data.split(",", 1)
+                img_data = base64.b64decode(encoded)
+                img_io = io.BytesIO(img_data)
+                img = Image(img_io, width=2*inch, height=1*inch)
+                img.hAlign = 'LEFT'
+                story.append(img)
+            except Exception as e:
+                story.append(Paragraph(f"[Signature Error: {str(e)}]", styles['Normal']))
+        
+        if data.get('signature_name_or_empty'):
+            story.append(Paragraph(f"Notes: {data.get('signature_name_or_empty')}", styles['Normal']))
 
-    # Footer
-    story.append(Spacer(1, 30))
-    story.append(Paragraph(f"Support: {data.get('company_support_contact')}", styles['Normal']))
+        story.append(Spacer(1, 30))
+        story.append(Paragraph(f"Support: {data.get('company_support_contact')}", styles['Normal']))
 
-    doc.build(story)
-    return buffer.getvalue()
+        doc.build(story)
+        return buffer.getvalue()
 
 
 def generate_route_summary_pdf(route_name: str, invoices: List[Any], current_user_name: str, current_user_email: str) -> bytes:
