@@ -1,337 +1,346 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Acknowledgement of Delivery</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <!-- Print-friendly A4 settings -->
-  <style>
-    @page {
-      size: A4 portrait;
-      margin: 15mm 20mm 15mm 20mm;
-    }
+<title>Invoice</title>
 
-    /* Reset & base */
-    * {
-      box-sizing: border-box;
-    }
-    
-    html, body {
-      margin: 0;
-      padding: 0;
-      font-family: "Arial", "Helvetica", sans-serif;
-      font-size: 11pt;
-      line-height: 1.4;
-      color: #333;
-      background: #fff;
-    }
+<style>
 
-    .page {
-      width: 170mm; /* A4 width minus margins */
-      min-height: 267mm; /* A4 height minus margins */
-      margin: 0 auto;
-      padding: 0;
-      background: #fff;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-    }
+@page{
+  size:A4;
+  margin:15mm 20mm;
+}
 
-    /* Header Styles */
-    .header {
-      border-bottom: 2pt solid #333;
-      padding-bottom: 8mm;
-      margin-bottom: 10mm;
-    }
+body{
+  font-family:Arial, Helvetica, sans-serif;
+  font-size:11pt;
+  color:#333;
+  margin:0;
+}
 
-    .header-row {
-      display: table;
-      width: 100%;
-      table-layout: fixed;
-    }
+.page{
+  width:170mm;
+  margin:auto;
+}
 
-    .header-left {
-      display: table-cell;
-      width: 60%;
-      vertical-align: top;
-    }
+h1,h2,h3{
+  margin:0;
+}
 
-    .header-right {
-      display: table-cell;
-      width: 40%;
-      vertical-align: top;
-      text-align: right;
-    }
+.header{
+  display:flex;
+  justify-content:space-between;
+  border-bottom:2px solid #333;
+  padding-bottom:8mm;
+  margin-bottom:8mm;
+}
 
-    .company-info {
-      margin-bottom: 6mm;
-    }
+.company{
+  width:60%;
+}
 
-    .company-name {
-      font-size: 18pt;
-      font-weight: bold;
-      color: #000;
-      margin-bottom: 2mm;
-    }
+.company-name{
+  font-size:20pt;
+  font-weight:bold;
+}
 
-    .document-title {
-      font-size: 14pt;
-      font-weight: bold;
-      color: #333;
-      text-transform: uppercase;
-      letter-spacing: 0.5pt;
-    }
+.company-address{
+  font-size:10pt;
+  margin-top:3mm;
+  color:#555;
+}
 
-    .invoice-meta {
-      font-size: 10pt;
-      color: #666;
-    }
+.invoice-meta{
+  text-align:right;
+  font-size:10pt;
+}
 
-    .invoice-meta strong {
-      color: #000;
-    }
+.invoice-meta table{
+  border-collapse:collapse;
+}
 
-    /* Content Sections */
-    .content {
-      margin-bottom: 8mm;
-    }
+.invoice-meta td{
+  padding:1mm 3mm;
+}
 
-    .section-title {
-      font-size: 12pt;
-      font-weight: bold;
-      color: #000;
-      margin-bottom: 4mm;
-      border-bottom: 1pt solid #ddd;
-      padding-bottom: 1mm;
-    }
+.section{
+  margin-bottom:8mm;
+}
 
-    .info-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-bottom: 6mm;
-    }
+.section-title{
+  font-weight:bold;
+  font-size:12pt;
+  border-bottom:1px solid #ccc;
+  margin-bottom:3mm;
+}
 
-    .info-table td {
-      padding: 3mm 2mm;
-      border-bottom: 1pt solid #eee;
-      vertical-align: top;
-    }
+.info-table{
+  width:100%;
+  border-collapse:collapse;
+}
 
-    .info-table .label {
-      width: 30%;
-      font-weight: bold;
-      color: #555;
-    }
+.info-table td{
+  padding:2mm;
+}
 
-    .info-table .value {
-      width: 70%;
-      color: #000;
-    }
+.label{
+  width:30%;
+  font-weight:bold;
+}
 
-    /* Acknowledgement Text */
-    .acknowledgement-text {
-      background: #f8f9fa;
-      border: 1pt solid #ddd;
-      border-radius: 2mm;
-      padding: 6mm;
-      margin: 6mm 0;
-      font-style: italic;
-      text-align: justify;
-      line-height: 1.5;
-    }
+.value{
+  width:70%;
+}
 
-    /* Signature Section */
-    .signature-section {
-      margin-top: 12mm;
-      page-break-inside: avoid;
-    }
+.invoice-table{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:5mm;
+}
 
-    .signature-container {
-      display: flex;
-      justify-content: flex-end;
-      width: 100%;
-      margin-top: 8mm;
-    }
+.invoice-table th{
+  background:#f3f3f3;
+  border:1px solid #ccc;
+  padding:3mm;
+  text-align:left;
+}
 
-    .signature-left {
-      width: 60%;
-      max-width: 100mm;
-    }
+.invoice-table td{
+  border:1px solid #ddd;
+  padding:3mm;
+}
 
-    .signature-box {
-      border: 1.5pt solid #333;
-      border-radius: 2mm;
-      height: 25mm;
-      background: #fff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 3mm;
-      position: relative;
-    }
+.invoice-table .right{
+  text-align:right;
+}
 
-    .signature-image {
-      max-width: 95%;
-      max-height: 95%;
-      object-fit: contain;
-    }
+.total-section{
+  margin-top:6mm;
+  width:100%;
+  display:flex;
+  justify-content:flex-end;
+}
 
-    .signature-label {
-      font-size: 9pt;
-      text-align: center;
-      color: #666;
-      font-weight: bold;
-      text-transform: uppercase;
-      letter-spacing: 0.5pt;
-    }
+.total-table{
+  width:60mm;
+  border-collapse:collapse;
+}
 
-    .signature-name {
-      font-size: 10pt;
-      font-weight: bold;
-      color: #000;
-      text-align: center;
-      margin-top: 2mm;
-      min-height: 6mm;
-      border-bottom: 1pt solid #333;
-      padding-bottom: 1mm;
-    }
+.total-table td{
+  padding:2mm;
+}
 
-    .signature-line {
-      border-bottom: 1pt solid #333;
-      height: 25mm;
-      margin-bottom: 3mm;
-      position: relative;
-    }
+.total-label{
+  text-align:right;
+  font-weight:bold;
+}
 
-    .signature-line::before {
-      content: "Signature";
-      position: absolute;
-      bottom: -15pt;
-      left: 50%;
-      transform: translateX(-50%);
-      font-size: 9pt;
-      color: #666;
-      background: #fff;
-      padding: 0 3mm;
-    }
+.total-value{
+  text-align:right;
+}
 
-    /* Footer */
-    .footer {
-      border-top: 1pt solid #333;
-      padding-top: 4mm;
-      font-size: 9pt;
-      color: #666;
-      text-align: center;
-      page-break-inside: avoid;
-      margin-top: 0;
-    }
+.grand-total{
+  border-top:2px solid #333;
+  font-weight:bold;
+}
 
-    .footer-row {
-      margin-bottom: 2mm;
-    }
+.signature-section{
+  margin-top:12mm;
+  display:flex;
+  justify-content:space-between;
+}
 
-    /* Print-specific adjustments */
-    @media print {
-      .page {
-        margin: 0;
-        box-shadow: none;
-      }
-      
-      body {
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
-      }
-    }
+.signature-box{
+  width:70mm;
+}
 
-    /* Screen preview */
-    @media screen {
-      body {
-        background: #f0f0f0;
-        padding: 10mm;
-      }
-      
-      .page {
-        box-shadow: 0 2mm 10mm rgba(0,0,0,0.1);
-        background: #fff;
-        padding: 15mm 20mm;
-      }
-    }
+.signature-line{
+  border-bottom:1px solid #333;
+  height:20mm;
+  margin-bottom:2mm;
+}
 
-  </style>
+.footer{
+  margin-top:15mm;
+  border-top:1px solid #ccc;
+  padding-top:4mm;
+  font-size:9pt;
+  text-align:center;
+  color:#666;
+}
+
+</style>
 </head>
+
 <body>
-  <div class="page">
-    <!-- Header Section -->
-    <div class="header">
-      <div class="header-row">
-        <div class="header-left">
-          <div class="company-info">
-            <div class="company-name">{{company_name}}</div>
-            <div class="document-title">Delivery Acknowledgement</div>
-          </div>
-        </div>
-        <div class="header-right">
-          <div class="invoice-meta">
-            <div><strong>Invoice ID:</strong> {{invoice_id}}</div>
-            <div><strong>Date:</strong> {{date}}</div>
-            <div><strong>Status:</strong> ACKNOWLEDGED</div>
-          </div>
-        </div>
-      </div>
-    </div>
 
-    <!-- Customer Information -->
-    <div class="content">
-      <div class="section-title">Customer Information</div>
-      <table class="info-table">
-        <tr>
-          <td class="label">Customer Name:</td>
-          <td class="value">{{customer_name}}</td>
-        </tr>
-        <tr>
-          <td class="label">Branch Address:</td>
-          <td class="value">{{branch_address}}</td>
-        </tr>
-        <tr>
-          <td class="label">Delivered By:</td>
-          <td class="value">{{delivered_by_name}}</td>
-        </tr>
-      </table>
-    </div>
+<div class="page">
 
-    <!-- Acknowledgement Statement -->
-    <div class="acknowledgement-text">
-      I hereby acknowledge receipt of the items described in the referenced invoice above. 
-      I confirm that the items were delivered in satisfactory condition and that I am 
-      authorized to accept delivery on behalf of the customer mentioned above.
-    </div>
+<!-- Header -->
 
-    <!-- Signature Section -->
-    <div class="signature-section">
-      <div class="section-title">Acknowledgement Signature</div>
-      
-      <div class="signature-container">
-        <div class="signature-left">
-          <div class="signature-box">
-            <img class="signature-image" src="{{signature_data_url_or_path}}" alt="Customer Signature" 
-                 onerror="this.style.display='none'">
-          </div>
-          <div class="signature-label">Customer/Authorized Person</div>
-          <div class="signature-name">{{signature_name_or_empty}}</div>
-        </div>
-      </div>
-    </div>
+<div class="header">
 
-    <!-- Footer -->
-    <div class="footer">
-      <div class="footer-row">
-        <strong>{{company_name}}</strong> • Invoice: {{invoice_id}} • Generated: {{date}}
-      </div>
-      <div class="footer-row">
-        For questions about this acknowledgement, contact: {{company_support_contact}}
-      </div>
-    </div>
-  </div>
+<div class="company">
+
+<div class="company-name">{{company_name}}</div>
+
+<div class="company-address">
+{{company_address}} <br>
+Phone: {{company_phone}} <br>
+Email: {{company_email}}
+</div>
+
+</div>
+
+<div class="invoice-meta">
+
+<table>
+<tr>
+<td><b>Invoice No</b></td>
+<td>{{invoice_number}}</td>
+</tr>
+
+<tr>
+<td><b>Date</b></td>
+<td>{{invoice_date}}</td>
+</tr>
+
+<tr>
+<td><b>Route</b></td>
+<td>{{route_number}}</td>
+</tr>
+
+<tr>
+<td><b>Driver</b></td>
+<td>{{driver_name}}</td>
+</tr>
+
+</table>
+
+</div>
+
+</div>
+
+<!-- Customer -->
+
+<div class="section">
+
+<div class="section-title">Bill To</div>
+
+<table class="info-table">
+
+<tr>
+<td class="label">Customer</td>
+<td class="value">{{customer_name}}</td>
+</tr>
+
+<tr>
+<td class="label">Address</td>
+<td class="value">{{customer_address}}</td>
+</tr>
+
+<tr>
+<td class="label">Phone</td>
+<td class="value">{{customer_phone}}</td>
+</tr>
+
+</table>
+
+</div>
+
+<!-- Invoice Items -->
+
+<div class="section">
+
+<div class="section-title">Invoice Items</div>
+
+<table class="invoice-table">
+
+<thead>
+
+<tr>
+<th>#</th>
+<th>Description</th>
+<th>Invoice No</th>
+<th class="right">Amount</th>
+</tr>
+
+</thead>
+
+<tbody>
+
+{{invoice_rows}}
+
+</tbody>
+
+</table>
+
+</div>
+
+<!-- Totals -->
+
+<div class="total-section">
+
+<table class="total-table">
+
+<tr>
+<td class="total-label">Subtotal</td>
+<td class="total-value">₹{{subtotal}}</td>
+</tr>
+
+<tr>
+<td class="total-label">Tax</td>
+<td class="total-value">₹{{tax}}</td>
+</tr>
+
+<tr class="grand-total">
+<td class="total-label">Total</td>
+<td class="total-value">₹{{total}}</td>
+</tr>
+
+</table>
+
+</div>
+
+<!-- Signatures -->
+
+<div class="signature-section">
+
+<div class="signature-box">
+
+<div class="signature-line"></div>
+
+<div>Authorized By</div>
+
+</div>
+
+<div class="signature-box">
+
+<div class="signature-line">
+<img src="{{customer_signature}}" style="max-height:100%;max-width:100%">
+</div>
+
+<div>Customer Signature</div>
+
+</div>
+
+</div>
+
+<!-- Footer -->
+
+<div class="footer">
+
+<b>{{company_name}}</b> • Invoice {{invoice_number}} • Generated {{invoice_date}}
+
+<br>
+
+For support contact: {{company_support_contact}}
+
+</div>
+
+</div>
+
 </body>
 </html>
