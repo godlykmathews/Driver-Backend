@@ -449,12 +449,18 @@ async def acknowledge_invoice(
         "invoice_id": invoice.n_inv_no,
         "date": datetime.utcnow().strftime("%Y-%m-%d"),
         "customer_name": invoice.cust_name,
+        "customer_address": "",
+        "customer_phone": "",
         "branch_address": f"{branch_name}, {branch_city}",
         "delivered_by_name": current_driver.name,
+        "route_number": str(invoice.route_number) if invoice.route_number else "",
+        "subtotal": str(invoice.amount),
+        "tax": "0.00",
+        "total": str(invoice.amount),
         "signature_data_url_or_path": signature_data_url,
         "signature_name_or_empty": notes or "",
         "company_name": "Dlive",
-        "company_support_contact": "support@zedwell.com"  # Customize as needed
+        "company_support_contact": "support@dlive.com"  # Customize as needed
     }
 
     # Generate PDF using ReportLab
@@ -1261,12 +1267,18 @@ async def acknowledge_customer_visit(
             "invoice_id": invoice.n_inv_no,
             "date": datetime.utcnow().strftime("%Y-%m-%d"),
             "customer_name": invoice.cust_name,
+            "customer_address": "",
+            "customer_phone": "",
             "branch_address": f"{branch_name}, {branch_city}",
             "delivered_by_name": current_driver.name,
+            "route_number": str(invoice.route_number) if invoice.route_number else "",
+            "subtotal": str(invoice.amount),
+            "tax": "0.00",
+            "total": str(invoice.amount),
             "signature_data_url_or_path": signature_data_url,
             "signature_name_or_empty": notes or "",
             "company_name": "Dlive",
-            "company_support_contact": "support@zedwell.com"  # Customize as needed
+            "company_support_contact": "support@dlive.com"  # Customize as needed
         }
 
         # Generate PDF using ReportLab
@@ -1507,12 +1519,18 @@ async def acknowledge_customer_group(
             "invoice_id": invoice.n_inv_no,
             "date": datetime.utcnow().strftime("%Y-%m-%d"),
             "customer_name": invoice.cust_name,
+            "customer_address": "",
+            "customer_phone": "",
             "branch_address": f"{branch_name}, {branch_city}",
             "delivered_by_name": current_driver.name,
+            "route_number": str(invoice.route_number) if invoice.route_number else "",
+            "subtotal": str(invoice.amount),
+            "tax": "0.00",
+            "total": str(invoice.amount),
             "signature_data_url_or_path": signature_data_url,
             "signature_name_or_empty": notes or "",
             "company_name": "Dlive",
-            "company_support_contact": "support@zedwell.com"
+            "company_support_contact": "support@dlive.com"
         }
         
         # Generate PDF using ReportLab

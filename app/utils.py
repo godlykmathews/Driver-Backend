@@ -264,6 +264,26 @@ def generate_acknowledgement_pdf(data: Dict[str, Any]) -> bytes:
         
         template = Template(template_content)
         
+        # Build invoice rows HTML
+        items = data.get('items', [])
+        if items:
+            rows_html = ''
+            for i, item in enumerate(items, 1):
+                rows_html += (
+                    f'<tr><td>{i}</td>'
+                    f'<td>{item.get("description", "")}</td>'
+                    f'<td>{item.get("invoice_no", "")}</td>'
+                    f'<td class="right">\u20b9{item.get("amount", "0.00")}</td></tr>'
+                )
+        else:
+            inv_no = data.get('invoice_id', '')
+            amount = data.get('total', data.get('subtotal', '0.00'))
+            rows_html = (
+                f'<tr><td>1</td><td>Invoice Item</td>'
+                f'<td>{inv_no}</td>'
+                f'<td class="right">\u20b9{amount}</td></tr>'
+            )
+
         # Prepare template data with defaults
         template_vars = {
             'company_name': data.get('company_name', 'Dlive'),
@@ -277,7 +297,7 @@ def generate_acknowledgement_pdf(data: Dict[str, Any]) -> bytes:
             'customer_name': data.get('customer_name', ''),
             'customer_address': data.get('customer_address', ''),
             'customer_phone': data.get('customer_phone', ''),
-            'invoice_rows': '',
+            'invoice_rows': rows_html,
             'subtotal': data.get('subtotal', '0.00'),
             'tax': data.get('tax', '0.00'),
             'total': data.get('total', '0.00'),
